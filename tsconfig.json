@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "baseUrl": "src",
+        "module": "commonjs",
+        "target": "esnext",
+        "declaration": false,
+        "sourceMap": false,
+        "preserveConstEnums": true,
+        "removeComments": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "newLine": "lf",
+        "typeRoots": [
+            "node_modules/@types",
+            "typings"
+        ],
+        "outDir": "dist",
+        "rootDir": "src"
+    },
+    "exclude": [
+        "node_modules"
+    ]
+}

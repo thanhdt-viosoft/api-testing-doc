@@ -1,0 +1,14 @@
+---
+title: Init default category
+vars:
+  url: http://localhost:6116/pm
+  adminToken:
+    token: 0648f9dfaffba19cc89c9a812f9eac0a
+steps:
+- <import var="categories" data>: !file category.json
+
+- <job loop="categories">:
+  - Add a new category | ADMIN:
+      POST: ${url}/Category?fields={"*":1}
+      headers: ${adminToken}
+      body: ${categories_value}

@@ -1,0 +1,1 @@
+require('fs').writeFileSync('./bin/.nodemon', new Date().toISOString())

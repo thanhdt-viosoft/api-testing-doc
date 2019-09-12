@@ -1,0 +1,21 @@
+- <job title="Crawl chapters in each story" loop="stories">:
+  - Crawl chapper:
+      GET: ${stories_value.link}
+      var: cnt
+  - <regex title="Crawl image" match var="regImg" data="${cnt}">: /<div class="detail-info">.*?<img src="([^"]+)/ms
+  - <regex title="Crawl chapters" exec var="regChapers" data="${cnt}">: /<div class="col-xs-5 chapter">.*?<a href="([^"]+)" data-id="([^"]+)">([^<]+)/gms
+  - <output pretty="none" var="stories_value.chapters">: |
+      (
+        ${regChapers}.map(e => {
+          return {
+            image: ${regImg[1].trim()},
+            link: e[1].trim(),
+            id: e[2].trim(),
+            name: e[3].trim()
+          }
+        })
+      )
+  
+  - <output title="Saved story data at ./saved/${stories_value.uname}.txt" pretty file="./saved/${stories_value.uname}.txt">: (_.omit(${stories_value}, ['chapters']))
+  
+  - <import>: ./get-image.yaml 

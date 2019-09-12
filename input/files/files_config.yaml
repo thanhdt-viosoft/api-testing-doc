@@ -1,0 +1,257 @@
+---
+title: File Config APIs
+forces: true
+# docs:
+# vars:
+steps:
+
+- Add a file config which allow everyone upload | ADMIN:
+    POST: ${url}/Config?fields={"*":1}
+    headers: { token: "${token}" }
+    body: {
+      publish: true,
+      config: {
+        zip: false,
+        resize: [],
+        maxFile: 1,
+        maxSize: 1024,
+        expiredTime: 120000,
+        ext: ".*"
+      },
+      name: "file config all"
+    }
+    var: fileConfig
+    validate:
+    - Check response status:
+      - match(status): 200
+    - Verify data after creating:
+      - match(data): {
+        publish: true,
+        config: {
+          zip: false,
+          resize: [],
+          maxFile: 1,
+          maxSize: 1024,
+          expiredTime: 120000,
+          ext: ".*"
+        },
+        name: "file config all"
+      }
+    note: |
+      Add file config for user upload
+
+      Add SMTP server information for sending
+
+      ==================================> REQUEST BODY ==================================
+
+      | config*: <<object>> Uploading file configuration information
+      | - maxSize*: <<number>> Limit uploading file size
+      | - maxFile*: <<number>> Num of files can upload
+      | - expiredTime*: <<number>> Storing time before file is be deleted when it not just saved (seconds)
+      | - ext*: <<string>> File extension allow upload. <code>Eg. <b>jpe?g|png|gif</b> (or use <b>.*</b> for all files)</code>
+      | - resize: <<object[]>> Config to auto resize images after upload <code>Only use <b>resize</b> OR <b>zip</b></code>
+      | | - w: <<number>> Image width after resize. <code>Atleast must have <b>w</b> or <b>h</b></code>
+      | | - h: <<number>> Image height after resize. <code>Atleast must have <b>w</b> or <b>h</b></code>
+      | | - ext*: <<string>> Prefix image name after resize. <code>Eg. <b>ext</b> = 'thumb'. File name is <b>test.jpg</b>. File after resize is <b>test.thumb.jpg</b></code>
+      | - zip: <<boolean>> Auto zip file in uploading progress <code>Only use <b>zip</b> OR <b>resize</b></code>
+      | name*: <<string>> File config name
+
+      ===================================================================================
+
+
+      ================================== RESPONSE BODY <==================================
+
+      | name: <<string>> File config name
+      | publish: <<boolean>> If its value is true then it will allows everyone can upload files to server
+      | config: <<object>> Uploading file configuration information
+      | - zip: <<boolean>> Auto zip file in uploading progress <code>Only use <b>zip</b> OR <b>resize</b></code>
+      | - maxSize: <<number>> Limit uploading file size
+      | - maxFile: <<number>> Num of files can upload
+      | - expiredTime: <<number>> Storing time before file is be deleted when it not just saved (seconds)
+      | - ext: <<string>> File extension allow upload. <code>Eg. <b>jpe?g|png|gif</b> (or use <b>.*</b> for all files)</code>
+      | - resize: <<object[]>> Config to auto resize images after upload <code>Only use <b>resize</b> OR <b>zip</b></code>
+      | | - w: <<number>> Image width after resize. <code>Atleast must have <b>w</b> or <b>h</b></code>
+      | | - h: <<number>> Image height after resize. <code>Atleast must have <b>w</b> or <b>h</b></code>
+      | | - ext: <<string>> Prefix image name after resize. <code>Eg. <b>ext</b> = 'thumb'. File name is <b>test.jpg</b>. File after resize is <b>test.thumb.jpg</b></code>
+      | account_id: <<string>> Creator or lastest updator ID
+      | _id: <<string>> File config ID
+      | updated_at: <<string>> Updated time
+      | created_at: <<string>> Created time
+
+      ===================================================================================
+
+- Add a file config which allow only member | USER:
+    POST: ${url}/Config?fields={"*":1}
+    headers: { token: "${token}" }
+    body: {
+      publish: false,
+      config: {
+        zip: false,
+        resize: [],
+        maxFile: 1,
+        maxSize: 1024,
+        expiredTime: 120000,
+        ext: ".*"
+      },
+      name: "file config member"
+    }
+    var: fileConfigMember
+    validate:
+    - Check response status:
+      - match(status): 200
+    - Verify data after creating:
+      - match(data): {
+        publish: false,
+        config: {
+          zip: false,
+          resize: [],
+          maxFile: 1,
+          maxSize: 1024,
+          expiredTime: 120000,
+          ext: ".*"
+        },
+        name: "file config member"
+      }
+    note: |
+      Add file config for user upload
+
+      Add SMTP server information for sending
+
+      ==================================> REQUEST BODY ==================================
+
+      | config*: <<object>> Uploading file configuration information
+      | - maxSize*: <<number>> Limit uploading file size
+      | - maxFile*: <<number>> Num of files can upload
+      | - expiredTime*: <<number>> Storing time before file is be deleted when it not just saved (seconds)
+      | - ext*: <<string>> File extension allow upload. <code>Eg. <b>jpe?g|png|gif</b> (or use <b>.*</b> for all files)</code>
+      | - resize: <<object[]>> Config to auto resize images after upload <code>Only use <b>resize</b> OR <b>zip</b></code>
+      | | - w: <<number>> Image width after resize. <code>Atleast must have <b>w</b> or <b>h</b></code>
+      | | - h: <<number>> Image height after resize. <code>Atleast must have <b>w</b> or <b>h</b></code>
+      | | - ext*: <<string>> Prefix image name after resize. <code>Eg. <b>ext</b> = 'thumb'. File name is <b>test.jpg</b>. File after resize is <b>test.thumb.jpg</b></code>
+      | - zip: <<boolean>> Auto zip file in uploading progress <code>Only use <b>zip</b> OR <b>resize</b></code>
+      | name*: <<string>> File config name
+
+      ===================================================================================
+
+
+      ================================== RESPONSE BODY <==================================
+
+      | name: <<string>> File config name
+      | publish: <<boolean>> If its value is true then it will allows everyone can upload files to server
+      | config: <<object>> Uploading file configuration information
+      | - zip: <<boolean>> Auto zip file in uploading progress <code>Only use <b>zip</b> OR <b>resize</b></code>
+      | - maxSize: <<number>> Limit uploading file size
+      | - maxFile: <<number>> Num of files can upload
+      | - expiredTime: <<number>> Storing time before file is be deleted when it not just saved (seconds)
+      | - ext: <<string>> File extension allow upload. <code>Eg. <b>jpe?g|png|gif</b> (or use <b>.*</b> for all files)</code>
+      | - resize: <<object[]>> Config to auto resize images after upload <code>Only use <b>resize</b> OR <b>zip</b></code>
+      | | - w: <<number>> Image width after resize. <code>Atleast must have <b>w</b> or <b>h</b></code>
+      | | - h: <<number>> Image height after resize. <code>Atleast must have <b>w</b> or <b>h</b></code>
+      | | - ext: <<string>> Prefix image name after resize. <code>Eg. <b>ext</b> = 'thumb'. File name is <b>test.jpg</b>. File after resize is <b>test.thumb.jpg</b></code>
+      | account_id: <<string>> Creator or lastest updator ID
+      | _id: <<string>> File config ID
+      | updated_at: <<string>> Updated time
+      | created_at: <<string>> Created time
+
+      ===================================================================================
+
+- Update files config | ADMIN:
+    PUT: ${url}/Config/:fileConfigId|${fileConfigMember._id}
+    headers: { token: "${token}" }
+    body: {
+      name: "file config member updated"
+    }
+    validate:
+    - Check response status:
+      - match(status): 204
+    note: |
+      Update files config
+       
+      ==================================> REQUEST BODY ==================================
+      
+      | name: <<string>> File config name
+      | publish: <<boolean>> If its value is true then it will allows everyone can upload files to server
+      | config: <<object>> Uploading file configuration information
+      | - maxSize*: <<number>> Limit uploading file size
+      | - maxFile*: <<number>> Num of files can upload
+      | - ext*: <<string>> File extension allow upload. <code>Eg. <b>jpe?g|png|gif</b> (or use <b>.*</b> for all files)</code>
+      | - expiredTime*: <<number>> Storing time before file is be deleted when it not just saved (seconds)
+      | - resize: <<object[]>> Config to auto resize images after upload <code>Only use <b>resize</b> OR <b>zip</b></code>
+      | | - w: <<number>> Image width after resize. <code>Atleast must have <b>w</b> or <b>h</b></code>
+      | | - h: <<number>> Image height after resize. <code>Atleast must have <b>w</b> or <b>h</b></code>
+      | | - ext: <<string>> Prefix image name after resize. <code>Eg. <b>ext</b> = 'thumb'. File name is <b>test.jpg</b>. File after resize is <b>test.thumb.jpg</b></code>
+      | - zip: <<boolean>> Auto zip file in uploading progress <code>Only use <b>zip</b> OR <b>resize</b></code>
+      
+      ===================================================================================
+  
+- Check file config after updating | ADMIN:
+    GET: ${url}/Config/:fileConfigId|${fileConfigMember._id}?fields={"*":1}
+    headers: { token: "${token}" }
+    validate:
+    - Check response data:
+      - match(data): {
+        name: "file config member updated"
+      }
+
+- Get list files config | ADMIN:
+    GET: ${url}/Config?fields={"*":1}&sort={"updated_at":-1}&page=1&recordsPerPage=1
+    headers: { token: "${token}" }
+    validate:
+    - Check response status:
+      - match(status): 200
+    - Check data length:
+      - length(data): 1
+    - Check data after updating:
+      - some(data): {
+        name: "file config member updated"
+      }
+    note: |
+      Get list files config
+    
+      ================================== RESPONSE BODY <==================================
+      
+      | _id: <<string>> File config ID
+      | name: <<string>> File config name
+      | config: <<object>> Uploading file configuration information
+      | - maxSize: <<number>> Limit uploading file size
+      | - maxFile: <<number>> Num of files can upload
+      | - ext: <<string>> File extension allow upload. <code>Eg. <b>jpe?g|png|gif</b> (or use <b>.*</b> for all files)</code>
+      | - resize: <<object[]>> Config to auto resize images after upload <code>Only use <b>resize</b> OR <b>zip</b></code>
+      | | - w: <<number>> Image width after resize. <code>Atleast must have <b>w</b> or <b>h</b></code>
+      | | - h: <<number>> Image height after resize. <code>Atleast must have <b>w</b> or <b>h</b></code>
+      | | - ext: <<string>> Prefix image name after resize. <code>Eg. <b>ext</b> = 'thumb'. File name is <b>test.jpg</b>. File after resize is <b>test.thumb.jpg</b></code>
+      | - zip: <<boolean>> Auto zip file in uploading progress <code>Only use <b>zip</b> OR <b>resize</b></code>
+      | - expiredTime: <<string>> Storing time before file is be deleted when it not just saved (seconds)
+      | project_id: <<string>> Project ID
+      | account_id: <<string>> Creator or lastest updator ID
+      | created_at: <<string>> Created time
+      | updated_at: <<string>> Updated time
+      
+      ===================================================================================
+
+- <import>: files.yaml
+
+- Remove a file config | ADMIN:
+    DELETE: ${url}/Config/:fileConfigId|${fileConfig._id}
+    headers: { token: "${token}" }
+    validate:
+    - Check response status:
+      - match(status): 204
+    note: |
+      Remove files config
+
+- // Check file config after removing:
+    GET: ${url}/Config/:fileConfigId|${fileConfig._id}?fields={"*":1}
+    headers: { token: "${token}" }
+    validate:
+    - Check response data:
+      - exists(data): null
+    
+- // Remove a member file config | ADMIN:
+    DELETE: ${url}/Config/:fileConfigId|${fileConfigMember._id}
+    headers: { token: "${token}" }
+    validate:
+    - Check response status:
+      - match(status): 204
+    note: |
+      Remove files config

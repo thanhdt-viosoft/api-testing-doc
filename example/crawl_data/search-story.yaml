@@ -1,0 +1,23 @@
+- <job title="Search story">:
+  - <input var="txtSearch">: "Enter story name here: "
+
+  - Search story:
+      GET: http://www.nettruyen.com/tim-truyen?keyword=${txtSearch}
+      var: cnt
+  - <regex title="Restrict data" exec var="reg" data="${cnt}">: /<a class="jtip" data-jtip="[^"]+" href="([^"]+)">([^<]+)/gms
+  - <output pretty="none" var="stories">: |
+      (
+        ${reg}.map(e => {
+          return {
+            name: e[2].trim(),
+            uname: e[2].trim().replace(/[;\\/:*?\"<>|&']/, '-'),
+            link: e[1].trim()
+          }
+        })
+      )
+  - <output loop="stories">: (${stories_key} + '. ' + ${stories_value.name})
+  
+  - <input var="storiesNum">: "Enter number to story data: "
+  - <output pretty="none">: (${stories} = [${stories}[${storiesNum}]])
+
+  - <import>: ./get-chapter.yaml 

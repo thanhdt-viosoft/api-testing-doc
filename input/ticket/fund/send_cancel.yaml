@@ -1,0 +1,40 @@
+---
+title: Fund service
+# Variables
+vars:
+# Templates to quick replace
+template:
+  adminToken: &adminToken
+    token: ${token}
+  senderToken: &senderToken
+    token: ${senderToken}
+  receiverToken: &receiverToken
+    token: ${receiverToken}
+steps:
+
+###################### Test case send fund and cancel ######################
+- <<note>>: Test case send fund and cancel
+
+- "<<extends>>": "Send fund to another | SENDER"
+  "<<no-doc>>":
+
+- "<<extends>>": "Check activity status after send | RECEIVER"
+
+- "<<extends>>": "Check activity status after send | SENDER"
+
+- Cancel fund sending from an activity | SENDER:
+    PUT: ${url}/Fund/Cancel/:act_id|${senderActivities[0]._id}
+    headers: *senderToken
+
+- "<<extends>>": "Check activity status after accept | RECEIVER"
+  Check activity must be removed after cancel | RECEIVER:
+    validate:
+      data: null
+
+- "<<extends>>": "Check activity status after accept | SENDER"
+  Check activity status after cancel | SENDER:
+    validate:
+      data: 
+      - match: {
+        status: "${activityStatus.Sender.CANCEL_SEND}"
+      }

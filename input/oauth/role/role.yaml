@@ -1,0 +1,76 @@
+---
+title: Role APIs
+# vars:
+steps:
+- <job title="Manage roles">:
+
+  - 'Add new role | ADMIN': 
+      POST: ${url}/Role?fields={"*":1}
+      headers: { "token": "${adminToken}" }
+      body: {
+        name: "newrole",
+        api: [{
+          path: ".*",
+          actions: ["GET", "DELETE"]
+        }],
+        web: [{
+          path: "/Account",
+          actions: ["GET"]
+        }],
+        mob: [{
+          path: ".*",
+          actions: [".*"]
+        }]
+      }
+      var: newrole
+      # Validate response data
+      validate:
+      - Check response status:
+        - match(status): 200
+      - Check data after creating:
+        - match(data): {
+          name: "newrole"
+        }
+
+  - 'Update a role | ADMIN': 
+      PUT: ${url}/Role/:roleID|${newrole._id}
+      headers: { "token": "${adminToken}" }
+      body: {
+        "name": "newrole updated"
+      }
+
+  - 'Get list roles | ADMIN': 
+      GET: ${url}/Role?page=1&recordsPerPage=10&where={}&fields={"*":1}&sort={"updated_at":-1}
+      headers: { "token": "${adminToken}" }
+
+  - 'Get a role detail | ADMIN': 
+      GET: ${url}/Role/:roleID|${newrole._id}
+      headers: { "token": "${adminToken}" }
+    # Validate response data
+      validate:
+      - Check response status:
+        - match(status): 200
+      - Check data after updating:
+        - match(data): {
+          name: "newrole updated"
+        }
+
+  - <import>: ../account/account.yaml
+
+  - 'Remove a role | ADMIN': 
+      DELETE: ${url}/Role/:roleID|${newrole._id}
+      headers: { "token": "${adminToken}" }
+
+  - '// Check role after remove':
+      'extends': Get a role detail | ADMIN
+      validate:
+      - Check role must be not exists:
+        - exists(data): false
+    
+  - 'Check authorization when call api | ADMIN':
+      HEAD: ${url}/Authoriz?path=:path|/Account&action=:action|GET
+      headers: { "token": "${adminToken}" }
+
+  - 'Get roles of current user | USER': 
+      GET: ${url}/MyRoles?type=:deviceType|web*&fields={"*":1}
+      headers: { "token": "${adminToken}" }

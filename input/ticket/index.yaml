@@ -1,0 +1,163 @@
+---
+title: Fund service
+des: Manage send, accept, decline, cancel fund
+saveto: ./../../output/ticket.md
+# Variables
+vars:
+  url: http://localhost:6118/tk
+  token: 0648f9dfaffba19cc89c9a812f9eac0a
+  senderToken: 5a42556c57ea0deb21b4db4898c63ff9 # Vietta
+  receiverToken: feafe0dc6132e0f26a1f05fcd2ed9f05 # thanhdt
+  activityStatus: {
+    Sender: {
+      PENDING_SEND: 1,
+      CANCEL_SEND: -1,
+      DECLINE_ACCEPT: -2,
+      PENDING_ACCEPT: 2,
+      ACCEPTED: 3
+    },
+    Receiver: {
+      PENDING_SEND: 51,
+      CANCEL_SEND: 49,
+      DECLINE_ACCEPT: 48,
+      PENDING_ACCEPT: 52,
+      ACCEPTED: 53
+    }
+  }
+# Templates to quick replace
+template:
+  adminToken: &adminToken
+    token: ${token}
+  senderToken: &senderToken
+    token: ${senderToken}
+  receiverToken: &receiverToken
+    token: ${receiverToken}
+steps:
+
+###################### Test case send fund and accept ######################
+- Test case send fund and accept
+
+- Send fund to another | SENDER:
+    POST: ${url}/Fund/Send
+    headers: *senderToken
+    body: {
+      coin_value: 1,
+      coin_name: 'eu4',
+      phone_email: '84366600809',
+      notify_via: {
+        email: doanthuanthanh88@gmail.com
+      },
+      content: 'hey bro 1'
+    }
+
+- "<no-doc>":
+  Check activity status after send | RECEIVER:
+    GET: ${url}/Activity?fields={"_id":1, "status":1}&sort={"updated_at":-1}&page=1&recordsPerPage=1
+    headers: *receiverToken
+    var: receiverActivities
+    validate:
+      data:
+      - some: {
+        status: "${activityStatus.Receiver.PENDING_SEND}"
+      }
+
+- "<no-doc>":
+  Check activity status after send | SENDER:
+    GET: ${url}/Activity?fields={"_id":1, "status":1}&sort={"updated_at":-1}&page=1&recordsPerPage=1
+    headers: *senderToken
+    var: senderActivities
+    validate:
+      data:
+      - some: {
+        status: "${activityStatus.Sender.PENDING_SEND}"
+      }
+
+- Accept fund from an activity | RECEIVER:
+    PUT: ${url}/Fund/Accept/:act_id|${receiverActivities[0]._id}
+    headers: *receiverToken
+
+- "<no-doc>":
+  Check activity status after accept | RECEIVER:
+    GET: ${url}/Activity/:act_id|${receiverActivities[0]._id}?fields={"status":1}
+    headers: *receiverToken
+    validate:
+      data: 
+      - match: {
+        status: "${activityStatus.Receiver.PENDING_ACCEPT}"
+      }
+
+- "<no-doc>":
+  Check activity status after accept | SENDER:
+    GET: ${url}/Activity/:act_id|${senderActivities[0]._id}?fields={"status":1}
+    headers: *senderToken
+    validate:
+      data: 
+      - match: {
+        status: "${activityStatus.Sender.PENDING_ACCEPT}"
+      }
+
+# - "<extends>": "Check activity status after accept | SENDER"
+#   "<try-to-pass>": 12/5000
+#   Verify transaction in block chain | SENDER:
+#     validate:
+#       data: 
+#       - match: {
+#         status: "${activityStatus.Sender.ACCEPTED}"
+#       }
+
+###################### Test case send fund and decline ######################
+- Test case send fund and decline
+
+- "<extends>": "Send fund to another | SENDER"
+  "<no-doc>":
+
+- "<extends>": "Check activity status after send | RECEIVER"
+
+- "<extends>": "Check activity status after send | SENDER"
+
+- Receiver decline fund sending | RECEIVER:
+    PUT: ${url}/Fund/Decline/:act_id|${receiverActivities[0]._id}
+    headers: *receiverToken
+
+- "<extends>": "Check activity status after accept | RECEIVER"
+  Check activity status after decline | RECEIVER:
+    validate:
+      data: 
+      - match: {
+        status: "${activityStatus.Receiver.DECLINE_ACCEPT}"
+      }
+
+- "<extends>": "Check activity status after accept | SENDER"
+  Check activity status after decline | SENDER:
+    validate:
+      data: 
+      - match: {
+        status: "${activityStatus.Sender.DECLINE_ACCEPT}"
+      }
+
+###################### Test case send fund and cancel ######################
+- Test case send fund and cancel
+
+- "<extends>": "Send fund to another | SENDER"
+  "<no-doc>":
+
+- "<extends>": "Check activity status after send | RECEIVER"
+
+- "<extends>": "Check activity status after send | SENDER"
+
+- Cancel fund sending from an activity | SENDER:
+    PUT: ${url}/Fund/Cancel/:act_id|${senderActivities[0]._id}
+    headers: *senderToken
+
+- "<extends>": "Check activity status after accept | RECEIVER"
+  Check activity must be removed after cancel | RECEIVER:
+    validate:
+      data: null
+
+- "<extends>": "Check activity status after accept | SENDER"
+  Check activity status after cancel | SENDER:
+    validate:
+      data: 
+      - match: {
+        status: "${activityStatus.Sender.CANCEL_SEND}"
+      }

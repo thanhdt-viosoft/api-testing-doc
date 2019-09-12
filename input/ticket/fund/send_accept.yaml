@@ -1,0 +1,84 @@
+---
+title: Fund service
+# Variables
+vars:
+# Templates to quick replace
+template:
+  adminToken: &adminToken
+    token: ${token}
+  senderToken: &senderToken
+    token: ${senderToken}
+  receiverToken: &receiverToken
+    token: ${receiverToken}
+steps:
+
+###################### Test case send fund and accept ######################
+- <<note>>: Test case send fund and accept
+
+- Send fund to another | SENDER:
+    POST: ${url}/Fund/Send
+    headers: *senderToken
+    body: {
+      coin_value: 1,
+      coin_name: 'eu4',
+      phone_email: "${receiver.phone}",
+      notify_via: {
+        email: doanthuanthanh88@gmail.com
+      },
+      content: 'hey bro 1'
+    }
+
+- "<<no-doc>>":
+  Check activity status after send | RECEIVER:
+    GET: ${url}/Activity?fields={"_id":1, "status":1}&sort={"updated_at":-1}&page=1&recordsPerPage=1
+    headers: *receiverToken
+    var: receiverActivities
+    validate:
+      data:
+      - some: {
+        status: "${activityStatus.Receiver.PENDING_SEND}"
+      }
+
+- "<<no-doc>>":
+  Check activity status after send | SENDER:
+    GET: ${url}/Activity?fields={"_id":1, "status":1}&sort={"updated_at":-1}&page=1&recordsPerPage=1
+    headers: *senderToken
+    var: senderActivities
+    validate:
+      data:
+      - some: {
+        status: "${activityStatus.Sender.PENDING_SEND}"
+      }
+
+- Accept fund from an activity | RECEIVER:
+    PUT: ${url}/Fund/Accept/:act_id|${receiverActivities[0]._id}
+    headers: *receiverToken
+
+- "<<no-doc>>":
+  Check activity status after accept | RECEIVER:
+    GET: ${url}/Activity/:act_id|${receiverActivities[0]._id}?fields={"status":1}
+    headers: *receiverToken
+    validate:
+      data: 
+      - match: {
+        status: "${activityStatus.Receiver.PENDING_ACCEPT}"
+      }
+
+- "<<no-doc>>":
+  Check activity status after accept | SENDER:
+    GET: ${url}/Activity/:act_id|${senderActivities[0]._id}?fields={"status":1}
+    headers: *senderToken
+    validate:
+      data: 
+      - match: {
+        status: "${activityStatus.Sender.PENDING_ACCEPT}"
+      }
+
+- "<<extends>>": "Check activity status after accept | SENDER"
+  "<<try-to-pass>>": 60/5000
+  Verify transaction in block chain | SENDER:
+    validate:
+      data: 
+      - match: {
+        status: "${activityStatus.Sender.ACCEPTED}"
+      }

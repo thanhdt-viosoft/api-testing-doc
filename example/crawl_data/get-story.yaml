@@ -1,0 +1,15 @@
+- <job title="Find all of hot stories">:
+  - 'Crawl data from www.nettruyen.com':
+      GET: http://www.nettruyen.com/hot
+      var: cnt
+  - <regex title="Restrict data" match1 test1 exec var="reg" data="${cnt}">: /<div class="item">.*?<a title="([^"]+)" href="([^"]+)">.*?<img src="([^"]+)".*?<div class="box_text">(.*?)<\/div>/gms
+  - <output title="Saving to file" file="data.txt" pretty="true" var="stories">: |
+      (
+        ${reg}.map(e => {
+          return {
+            name: e[1].trim(),
+            link: e[2].trim()
+          }
+        })
+      )
+  - <import>: ./get-chapter.yaml 

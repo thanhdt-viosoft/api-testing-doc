@@ -1,0 +1,20 @@
+- <job title="Activity API">: 
+  - List activities with sorting based on priority | BOTH SENDER AND RECEIVER FOR VINHPQ:
+      GET: ${url}/Activity/List?fields={"_id":1, "status":1, "account_id":1}&where={"role":{"$in":[1,2]}}&sort={"updated_at":-1}&page=1&recordsPerPage=10
+      headers: { token: "${senderToken}" }
+      var: activities
+      note: |
+        SENDER: role = 1
+        RECEIVER: role = 2
+
+  - List activities with sorting based on priority | BOTH SENDER AND RECEIVER:
+      GET: ${url}/Activity?fields={"_id":1, "status":1, "account_id":1}&where={"role":{"$in":[1,2]}}&sort={"updated_at":-1}&page=1&recordsPerPage=10
+      headers: { token: "${senderToken}" }
+      var: activities
+      note: |
+        SENDER: role = 1
+        RECEIVER: role = 2
+
+  - Get Activity details:
+      GET: ${url}/Activity/:act_id|${activities[0]._id}?fields={"*":1}
+      headers: { token: "${senderToken}" }

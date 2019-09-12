@@ -1,0 +1,132 @@
+[
+  {
+    "name": "Gasoline",
+    "coin_name": "EU4-GAS",
+    "init_fund": 300000
+  },
+  {
+    "name": "Book",
+    "coin_name": "EU4-BOOKS",
+    "init_fund": 300000
+  },
+  {
+    "name": "Coffee",
+    "coin_name": "EU4-COFFEE",
+    "init_fund": 300000
+  },
+  {
+    "name": "Clothing",
+    "coin_name": "EU4-CLOTHES",
+    "init_fund": 300000
+  },
+  {
+    "name": "Crafts",
+    "coin_name": "EU4-CRAFTS",
+    "init_fund": 300000
+  },
+  {
+    "name": "Grocery",
+    "coin_name": "EU4-GROCER",
+    "init_fund": 300000
+  },
+  {
+    "name": "Music",
+    "coin_name": "EU4-MUSIC",
+    "init_fund": 300000
+  },
+  {
+    "name": "Cinema",
+    "coin_name": "EU4-FILM",
+    "init_fund": 300000
+  },
+  {
+    "name": "Office Supply",
+    "coin_name": "EU4-OFFICE",
+    "init_fund": 300000
+  },
+  {
+    "name": "Pet",
+    "coin_name": "EU4-PETS",
+    "init_fund": 300000
+  },
+  {
+    "name": "Restaurant",
+    "coin_name": "EU4-DINING",
+    "init_fund": 300000
+  },
+  {
+    "name": "Retailer",
+    "coin_name": "EU4-RETAIL",
+    "init_fund": 300000
+  },
+  {
+    "name": "Sport Retailer",
+    "coin_name": "EU4-SPORT",
+    "init_fund": 300000
+  },
+  {
+    "name": "Airlines",
+    "coin_name": "EU4-AIR",
+    "init_fund": 300000
+  },
+  {
+    "name": "Travel",
+    "coin_name": "EU4-TRAVEL",
+    "init_fund": 300000
+  },
+  {
+    "name": "Toys",
+    "coin_name": "EU4-TOYS",
+    "init_fund": 300000
+  },
+  {
+    "name": "Video Games",
+    "coin_name": "EU4-GAMING",
+    "init_fund": 300000
+  },
+  {
+    "name": "Beauty",
+    "coin_name": "EU4-BEAUTY",
+    "init_fund": 300000
+  },
+  {
+    "name": "Infant",
+    "coin_name": "EU4-BABY",
+    "init_fund": 300000
+  },
+  {
+    "name": "Consumer Electronics",
+    "coin_name": "EU4-TECH",
+    "init_fund": 300000
+  },
+  {
+    "name": "Home Furnishing",
+    "coin_name": "EU4-FURNISH",
+    "init_fund": 300000
+  },
+  {
+    "name": "Gardening",
+    "coin_name": "EU4-GARDEN",
+    "init_fund": 300000
+  },
+  {
+    "name": "Live Events",
+    "coin_name": "EU4-LIVE",
+    "init_fund": 300000
+  },
+  {
+    "name": "Nature",
+    "coin_name": "EU4-NATURE",
+    "init_fund": 300000
+  },
+  {
+    "name": "Hotel",
+    "coin_name": "EU4-HOTEL",
+    "init_fund": 300000
+  },
+  {
+    "name": "Film",
+    "coin_name": "EU4-VIDEO",
+    "init_fund": 300000
+  }
+]

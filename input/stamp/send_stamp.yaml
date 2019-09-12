@@ -1,0 +1,63 @@
+
+- <job title="Send stamp from user photo">: 
+  - Send a stamp from user photo:
+      POST: ${url}/Stamp/Send?fields={"_id":1}
+      headers: { token: "${senderToken}" }
+      body: {
+        image_url: 'http://abc.com',
+        phone_email: 'vinhpq@viosoft.com',
+        coin_value: 1,
+        category_id: '5cef46483635fa2d24d5f341',
+        content: 'hello you'
+      }
+      var: stamp
+
+  - Accept a stamp from user photo:
+      PUT: ${url}/Stamp/Accept/${stamp._id}
+      headers: { token: "${receiverToken}" }
+
+- <job title="Send stamp from product">: 
+  - Send a stamp from product:
+      POST: ${url}/Stamp/Send?fields={"_id":1}
+      headers: { token: "${senderToken}" }
+      body: {
+        # image_url: 'http://abc.com',
+        phone_email: 'vinhpq@viosoft.com',
+        coin_value: 1,
+        # category_id: '5cef46483635fa2d24d5f341',
+        product_id: '5cf0f172fae075002a7c751c',
+        content: 'hello you'
+      }
+      var: stamp
+
+  - Accept a stamp from product:
+      PUT: ${url}/Stamp/Accept/${stamp._id}
+      headers: { token: "${receiverToken}" }
+
+
+
+# - ___API_description_is_here___:
+#     POST: http://10.80.3.65:18000/api/v2/wallet/send
+#     headers:   
+#       tokenAdmin: 0648f9dfaffba19cc89c9a812f9eac0a
+#       token: d41d8cd98f00b204e9800998ecf8427e
+#     body: {
+#       data: [
+#         {
+#           fromWallet: "5baa1215ac3ded00114c3c80",
+#           toWallet: "5cf0dfce9b686b002b85fc1f",
+#           value: 1000,
+#           coin: "eu4",
+#           type: "asset",
+#           id: "http://abc.com"
+#         },
+#         {
+#           fromWallet: "5baa1215ac3ded00114c3c80",
+#           toWallet: "5cf0dfcd9b686b002b85fc1e",
+#           value: 1000,
+#           coin: "eu4",
+#           type: "asset",
+#           id: "http://abc.com"
+#         }
+#       ]
+#     }

@@ -1,0 +1,16 @@
+---
+title: Files service
+des: Manage uploading file, limit size, temporary file ...
+saveTo: ./../Files.md
+# debug: true
+# Document
+docs:
+  token: user or admin token
+# Variables
+vars:
+  oauthUrl: http://onapis.com/oauth
+  url: http://localhost:6112
+  token: "!597aaa573f91b427e66ab09d:597aaa573f91b427e66ab0a0:1dfa77f08bd891a14f60c3aeeaaf1ea7"
+  
+steps:
+- <import>: files_config.yaml

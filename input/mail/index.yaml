@@ -1,0 +1,18 @@
+---
+title: Mail service
+des: Manage uploading file, limit size, temporary file ...
+saveto: ./../../output/mail.md
+debug: false
+# Document
+docs:
+  token: user or admin token
+# Variables
+vars:
+  oauthUrl: http://onapis.com/oauth
+  url: http://onapis.com/mail
+  token: "!597aaa573f91b427e66ab09d:597aaa573f91b427e66ab0a0:1dfa77f08bd891a14f60c3aeeaaf1ea7"
+  gmailAccessToken: ""
+  
+cases:
+- mail_config.yaml
+- mail_lookup.yaml

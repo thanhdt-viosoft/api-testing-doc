@@ -1,0 +1,91 @@
+---
+title: Mail APIs
+# Document
+docs:
+# Variables
+vars:
+# Templates to quick replace
+template:
+  adminToken: &adminToken
+    token: ${token}
+
+steps:
+  Send an email via mail config | ADMIN:
+    POST: ${url}/Send/:mailConfigIdOrMailGroupName|${mailConfig._id}?fields={"*":1}
+    headers: *adminToken
+    body: {
+      subject: 'Test mail',
+      text: 'Hello world',
+      html: '<b>Hello</b> <i>world</i>',
+      from: 'Tester',
+      to: ['doanthuanthanh88@gmail.com'],
+      cc: ['clipvnet@gmail.com'],
+      attachments: [{
+        path: 'http://www.logoeps.com/wp-content/uploads/2011/02/youtube-logo-vector.png'
+      }]
+    }
+    note: |
+      - To send an email, you must push it to queue in mail service
+      - Mail service will auto send your email
+
+  Send an email via mail template | ADMIN:
+    PUT: ${url}/Send/:mailTemplateId|${mailTemplate._id}?fields={"*":1}
+    headers: *adminToken
+    body: {
+      to: ['doanthuanthanh88@gmail.com'],
+      cc: ['clipvnet@gmail.com'],
+      config_id: "Group01", # mail_config_id or mail_group (Group01)
+      attachments: [
+        { path: 'http://www.logoeps.com/wp-content/uploads/2011/02/youtube-logo-vector.png' }
+      ],
+      params: {
+        name: 'Thanh'
+      }
+    }
+    note: |
+      - To send an email, you must push it to queue in mail service
+      - Mail service will auto send your email
+
+  Send an email via mail template with access token | ADMIN:
+    PUT: ${url}/Send/:mailTemplateId|${mailTemplate._id}?fields={"*":1}
+    headers: *adminToken
+    body: {
+      to: ['doanthuanthanh88@gmail.com'],
+      cc: ['clipvnet@gmail.com'],
+      auth: {
+        user: "clipvnet@gmail.com",
+        accessToken: "${gmailAccessToken}"
+      },
+      config: {
+        service: "Gmail",
+        auth: {
+          type: "OAuth2"
+        }
+      },
+      attachments: [
+        { path: 'http://www.logoeps.com/wp-content/uploads/2011/02/youtube-logo-vector.png' }
+      ],
+      params: {
+        name: 'Thanh'
+      }
+    }
+    var: mail
+    note: |
+      - Send mail via current user which got access token
+      - Add ?remove=true to get email template which is replaced data without save to database
+  
+  Resend an existed email:
+    PUT: ${url}/Resend/:mailId|${mail._id}?fields={"*":1}
+    headers: *adminToken
+  
+  Get list emails:
+    GET: ${url}?fields={"*":1}
+    headers: *adminToken
+
+  Get an email detail:
+    GET: ${url}/:mailId|${mail._id}?fields={"*":1}
+    headers: *adminToken
+
+  Remove an email sending:
+    DELETE: ${url}/:mailId|${mail._id}
+    headers: *adminToken

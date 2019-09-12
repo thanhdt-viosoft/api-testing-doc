@@ -1,0 +1,15 @@
+- <job title="Crawl image in earch chapter" loop="stories_value.chapters">:
+  - Crawl chapper:
+      GET: ${stories_value.chapters_value.link}
+      var: cnt
+  - <regex exec var="regImages" data="${cnt}">: /class='page-chapter'><img alt='([^']+)' data-index='[^']+' src='([^']+)'/gms
+  - <output pretty="none" var="stories_value.chapters_value.images">: |
+      (
+        ${regImages}.map(e => {
+          return {
+            alt: e[1].trim(),
+            url: e[2].trim()
+          }
+        })
+      )
+  - <output title="saved at ${stories_value.chapters_value.name}.txt" file="./saved/${stories_value.chapters_value.name}.txt" pretty>: ${stories_value.chapters_value}

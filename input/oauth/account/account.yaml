@@ -1,0 +1,187 @@
+---
+title: Account APIs
+# Document
+docs:
+  username: Username is required and must be unique
+  password: Password
+  recover_by: Email which is used for forgot password feature
+# Variables
+# vars:
+    
+steps:
+- <job title="Manage account by admin role">:
+  - 'Add new Account | ADMIN': 
+      POST: ${url}/Account?fields={"*":1}
+      headers: { "token": "${adminToken}" }
+      body: {
+        username: "newuser 1",
+        password: "123",
+        status: 1,
+        recover_by: 'newuser@abc.com',
+        fullname: 'Test user name',
+        phone: '093239842'
+      }
+      var: user1
+      # Validate response data
+      validate:
+      - Check response status:
+        - match(status): 200
+      - Check data after creating:
+        - match(data): {
+          username: "newuser 1",
+          status: 1,
+          recover_by: 'newuser@abc.com',
+          fullname: 'Test user name',
+          phone: '093239842'
+        }
+      # Comment something here
+      note: |
+        status {1:Actived, 0:Inactived, -1:Locked}
+        recover_by*
+
+  - 'Update an account | ADMIN': 
+      PUT: ${url}/Account/:accountId|${user1._id}
+      headers: { "token": "${adminToken}" }
+      body: {
+        username: "newuser 1 updated"
+      }
+
+  - 'Find all accounts | ADMIN': 
+      GET: ${url}/Account?page=1&recordsPerPage=1&where={}&fields={"_id":1,"username":1,"app":1,"status":1,"role_ids":1,"recover_by":1,"updated_at":1,"created_at":1}&sort={"updated_at":-1}
+      headers: { "token": "${adminToken}" }
+      validate:
+      - Check response status:
+        - match(status): 200
+      - Check records per page:
+        - length(data): 1
+
+  - 'Get account detail | ADMIN': 
+      GET: ${url}/Account/:accountId|${user1._id}?fields={"*":1}
+      headers: { "token": "${adminToken}" }
+      # Validate response data
+      validate:
+      - Check response status:
+        - match(status): 200
+      - Check data after updating:
+        - match(data): {
+          username: "newuser 1 updated"
+        }
+
+  - 'Get private information of accounts | ADMIN': 
+      GET: ${url}/AccountPrivate?fields={"*":1}
+      headers: { "token": "${adminToken}" }
+      # Validate response data
+      validate:
+      - Check account must exists:
+        - exists(data): true
+
+  - 'Get private information of an account | ADMIN': 
+      GET: ${url}/AccountPrivate/:accountId|${user1._id}?fields={"*":1}
+      headers: { "token": "${adminToken}" }
+      # Validate response data
+      validate:
+      - Check account private must exists:
+        - exists(data): true
+
+  - 'Delete an account | ADMIN': 
+      DELETE: ${url}/Account/:accountId|${user1._id}
+      headers: { "token": "${adminToken}" }
+      # Validate response data
+      validate:
+      - Check response status:
+        - match(status): 204
+
+  - '// Check account after remove':
+      'extends': Get account detail | ADMIN
+      # Validate response data
+      validate:
+      - Check data must NOT exists:
+        - exists(data): false
+
+  - '// Check account private after remove':
+      'extends': Get private information of an account | ADMIN
+      # Validate response data
+      validate:
+      - Check data must NOT exists:
+        - exists(data): false
+
+- <job title="Manage account by userself role">:
+  - 'Register new account | GUEST': 
+      POST: ${url}/Register?fields={"*":1}
+      headers:
+        pj: ${project._id}
+        role: ${newrole._id}
+      body: {
+        username: "newuser",
+        password: "123",
+        recover_by: 'newuser@abc.com',
+        fullname: 'Test user name',
+        phone: '093239842'
+      }
+      var: user
+      note: |
+        username* <string>
+        password* <string>
+        recover_by* <string | email>
+        ... customize fields are here
+
+  - 'Login | GUEST': 
+      POST: ${url}/Login
+      headers:
+        pj: ${project._id}
+        role: ${newrole._id}
+      body: {
+        username: "newuser",
+        password: "123"
+      }
+      vars: 
+        userToken: headers.token
+
+  - 'Update current user information | USER': 
+      PUT: ${url}/Me
+      headers: { token: "${userToken}" }
+      body: {
+        username: "newuser updated",
+      }
+
+  - 'Get current user information | USER': 
+      GET: ${url}/Me?fields={"*":1}
+      headers: { token: "${userToken}" }
+
+  - 'Extends token expire time | USER': 
+      HEAD: ${url}/Ping
+      headers: { token: "${userToken}" }
+
+  # Secret key
+  - <job title="Secret key">:
+    - 'Generate new secret key of current user which allow access api without login | USER': 
+        PUT: ${url}/Secretkey
+        headers: { token: "${userToken}" }
+        var: userSecret
+
+    - 'Get secret key of current user | USER': 
+        GET: ${url}/Secretkey
+        headers: { token: "${userToken}" }
+        var: userSecret1
+
+    - 'Remove secret key of current user | USER': 
+        DELETE: ${url}/Secretkey
+        headers: { token: "${userToken}" }
+
+  # 2 Steps verification
+  - <job title="2 Steps verification">:
+    - 'Turn ON 2-step verification | USER': 
+        POST: ${url}/TwoFactor
+        headers: { token: "${userToken}" }
+
+    - 'Turn OFF 2-step verification | USER': 
+        DELETE: ${url}/TwoFactor
+        headers: { token: "${userToken}" }
+
+  - 'Logout | USER': 
+      GET: ${url}/Logout
+      headers: { token: "${userToken}" }
+
+- '// Remove user account which is created for testing | ADMIN': 
+    DELETE: ${url}/Account/:accountId|${user._id}
+    headers: { "token": "${adminToken}" }

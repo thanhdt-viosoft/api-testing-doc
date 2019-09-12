@@ -1,0 +1,78 @@
+---
+title: Fund service
+# Variables
+vars:
+# Templates to quick replace
+template:
+  adminToken: &adminToken
+    token: ${token}
+  senderToken: &senderToken
+    token: ${senderToken}
+  receiverToken: &receiverToken
+    token: ${receiverToken}
+steps:
+
+###################### Test case init fund for new member ######################
+- <<note>>: Init data before test
+
+- "<<no-doc>>":
+  Get receiver phone number:
+    GET: ${oauthUrl}/Me?fields={"phone":1,"_id":1}
+    headers: *receiverToken
+    var: receiver
+
+- "<<no-doc>>":
+  Get receiver balance:
+    GET: ${balanceUrl}/v1/wallet/get_balance
+    headers: *receiverToken
+    var: receiverBalance
+
+- <<note>>: Test case Init fund
+
+- Init fund for new member:
+    POST: ${url}/Fund/Init/:account_id|${receiver._id}
+    headers: *adminToken
+
+- "<<no-doc>>":
+  Check activity status after send | RECEIVER:
+    GET: ${url}/Activity?fields={"_id":1, "status":1}&sort={"updated_at":-1}&page=1&recordsPerPage=1
+    headers: *receiverToken
+    var: receiverActivities
+    validate:
+      data:
+      - some: {
+        status: "${activityStatus.Receiver.PENDING_ACCEPT}"
+      }
+
+- "<<no-doc>>":
+  "<<try-to-pass>>": 60/5000
+  Verify transaction in block chain | NEW_USER:
+    GET: ${url}/Activity/:act_id|${receiverActivities[0]._id}?fields={"status":1}
+    headers: *receiverToken
+    validate:
+      data: 
+      - match: {
+        status: "${activityStatus.Receiver.ACCEPTED}"
+      }
+
+- "<<no-doc>>":
+  Check receiver balance:
+    GET: ${balanceUrl}/v1/wallet/get_balance
+    headers: *receiverToken
+    validate:
+      data:
+      - match: {
+        data: {
+          balance: {
+            eu4: "(${receiverBalance.data.balance.eu4} + ${initFundValue})"
+          }
+        }
+      }
+   
+- <<note>>: Test case Init reward
+
+- "<<no-doc>>":
+  Get receiver balance:
+    GET: ${balanceUrl}/v1/wallet/get_balance
+    headers: *receiverToken
+    var: receiverBalance

@@ -1,0 +1,85 @@
+---
+title: Test part title
+steps:
+
+- Add a new log | ADMIN:
+    POST: ${url}?fields={"*":1}
+    headers: "${adminToken}"
+    body: {
+      title: "Test new log",
+      event_name: "test",
+      event_code: "EVENT_CODE_HERE"
+    }
+    var: newlog
+    validate:
+    - Check response status: 
+      - match(status): 200
+    - Validate data:
+      - match(data): {
+        title: "Test new log",
+        event_name: "test",
+        event_code: "EVENT_CODE_HERE"
+      }
+    note: |
+      - title and event_code are required
+      - event_name is customize field
+
+- Get list users logs | ADMIN:
+    GET: ${url}?fields={"*":1}&sort={"updated_at":-1}&recordsPerPage=1
+    headers: "${adminToken}"
+    validate:
+    - Check response status: 
+      - match(status): 200
+    - Check data length:
+      - length(data): 1
+    - Check data includes:
+      - some(data): [{
+        title: "Test new log",
+        event_name: "test",
+        event_code: "EVENT_CODE_HERE"
+      }]
+
+- Update the log | ADMIN:
+    PUT: ${url}/:logId|${newlog._id}
+    headers: "${adminToken}"
+    body: {
+      "title": "Test new log updated",
+      "event_name": "test updated"
+    }
+    validate:
+    - Check response status: 
+      - match(status): 204
+
+- Get a log detail | ADMIN:
+    GET: ${url}/:logId|${newlog._id}?fields={"*":1}
+    headers: "${adminToken}"
+    validate:
+    - Check response status: 
+      - match(status): 200
+    - Validate data: 
+      - match(data): {
+          "title": "Test new log",
+          "event_name": "test updated"
+        }
+
+- Remove a log | ADMIN:
+    DELETE: ${url}/:logId|${newlog._id}
+    headers: "${adminToken}"
+    validate:
+    - Check response status: 
+      - match(status): 204
+
+- Check log after remove | ADMIN:
+    'doc': false
+    GET: ${url}/:logId|${newlog._id}?fields={"*":1}
+    headers: "${adminToken}"
+  # <try-to-pass sleep="1000">: 5
+
+- Get current user log | USER:
+    GET: ${url}/Mine?fields={"*":1}
+    headers: "${adminToken}"
+    validate:
+    - Check response status: 
+      - match(status): 200
+    note: |
+      Get list logs of current user

@@ -1,0 +1,50 @@
+---
+title: Mail Template APIs
+# Document
+docs:
+# Variables
+vars:
+# Templates to quick replace
+template:
+  adminToken: &adminToken
+    token: ${token}
+
+steps:
+  Add a new mail template | ADMIN:
+    POST: ${url}/Template?fields={"*":1}
+    headers: *adminToken
+    body: {
+      name: "Test template",
+      config_id: "${mailConfig._id}",
+      subject: "Test mail 123",
+      replace_type: "jinja2",
+      text: "Hello world 123 {{name}}",
+      html: "<b>Hello</b> <i>world</i> 123 {{name}}",
+      from: "Tester"
+    }
+    var: mailTemplate
+    note: |
+      Add content template for email
+  
+  Get list mail templates | ADMIN:
+    GET: ${url}/Template?fields={"*":1}
+    headers: *adminToken
+
+  Update the mail template | ADMIN:
+    PUT: ${url}/Template/:mailTemplateId|${mailTemplate._id}
+    headers: *adminToken
+    body: {
+      name: "Test template updated",
+      subject: "Test mail updated {{name}}"
+    }
+
+  <import>: mail.yaml
+
+  Get a mail template detail | ADMIN:
+    GET: ${url}/Template/:mailTemplateId|${mailTemplate._id}?fields={"*":1}
+    headers: *adminToken
+
+  Remove a mail template | ADMIN:
+    DELETE: ${url}/Template/:mailTemplateId|${mailTemplate._id}
+    headers: *adminToken
+  

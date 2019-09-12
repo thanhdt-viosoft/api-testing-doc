@@ -1,0 +1,52 @@
+- <job title="Manage project by admin role">:
+
+  - 'Get a project detail of current admin | ADMIN': 
+      GET: ${url}/Project?fields={"*":1}
+      headers: { "token": "${adminToken}" }
+      var: project
+      # Validate response data
+      validate:
+      - Check response status:
+        - match(status): 200
+      - Check data after updating:
+        - match(data): {
+          "des": "Unit test project 1",
+          "status": 1,
+          "config": "${project.config}"
+        }
+
+  - 'Update a project of current admin | ADMIN':
+      PUT: ${url}/Project
+      headers: { "token": "${adminToken}" }
+      body: {
+        config: {
+          single_mode: true,
+          session_expired: 900000,
+          cb_success: null,
+          status: 1,
+          mail_verify_template: null,
+          app: [],
+          trying: 3
+        }
+      }
+
+  - 'Check data after update project':
+      'doc': false
+      'extends': Get a project detail of current admin | ADMIN
+      validate:
+      - Check response status:
+        - match(status): 200
+      - Check data after updating:
+        - match(data): {
+            config: {
+            single_mode: true,
+            session_expired: 900000,
+            cb_success: null,
+            status: 1,
+            mail_verify_template: null,
+            app: [],
+            trying: 3
+          }
+        }
+
+  - <import>: ../role/role.yaml

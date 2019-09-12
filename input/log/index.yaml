@@ -1,0 +1,147 @@
+---
+title: Log service
+des: Manage log
+saveTo: ./../../output/log.md
+debug: true
+# stepbystep: true
+# Document
+docs:
+  token: user or admin token
+  pj: project id
+  role: role id
+# Variables
+# slient: true
+vars:
+  httpUrl: http://onapis.com/ws/Channel/5c95dc395ce9830010e8cbaf?group=Test
+  wsUrl: ws://onapis.com/ws/5c95cdaa7fcc5e0010511a8d?id=$5c95cdaa7fcc5e0010511a8d:5c95cdaa7fcc5e0010511a8d:a5a0c6f5d789bbd4dff657544c6f0a3a&group=Test
+  token: "!5c95cdaa7fcc5e0010511a8d:5c95cdaa7fcc5e0010511a8d:6eaff927ba2774f0c9156c441ebedae8"
+# Templates to quick replace
+
+steps:
+- ${ENV.PUBLIC}
+# - <output>: !md5 thanh
+# - <output var="a">: !btoa thanh
+# - <output if="${a === true}">: !atob ${a}
+# - <import>: ../../example/websocket.yaml
+
+# - // Push log to server ---:
+#     POST: http://onapis.com/ws/Channel/5ce91dcf9e863e0017f8de4c?group=Test
+#     headers: ${adminToken}
+#     body: {
+#       msg: "${rs.shift()}"
+#     }
+
+# - <job title="Run async ws listener">:
+#   - <ws title="Test WS" url="${wsUrl}">:
+#     - <ws-channel var="cmd" name="5c95dc395ce9830010e8cbaf">:
+#       - <job if="(!${log} && ${cmd})">:
+#         - <exec var="log" ansi2html stopWhen="(${cmd} === 'stop')" cmd="!file test.bat "${cmd || ''}"">:
+#           - Push log to server:
+#               retry/delay: 5/2000
+#               POST: ${httpUrl}
+#               headers: {
+#                 token: "${token}",
+#                 content-type: "text/plain"
+#               }
+#               body: ${log}
+
+# - <job title1="Run async push result" while="(${cmd} !== 'exit')" whileDelay="100" async>:
+#   - <job if="(${rs} && ${rs.length} > 0)">:
+#     - "${rs.shift()}"
+    # - Push log to server:
+    #     extends: // Push log to server ---
+    #     body: {
+    #       msg: "${rs.shift()}"
+    #     }
+  
+
+# - <job title1="Handle listener to deploy" while="(${cmd} !== 'exit')" whileDelay="1000" async>:
+#   - <job if="${cmd}">:
+#     - <exec vars="rs" ansi2html cmd="!file test.bat "${cmd || ''}"">:
+#       - <output var="cmd">: ""
+
+
+
+# - <output pretty>: ${thanh}
+    
+# - thanh
+# - <pause>: 1
+# - abc
+# - <input var="thanh">: Enter here now
+# - <output file="./test.txt">: ${thanh}
+# - <pause>: 
+# - <import saveTo="./test.part.md">: test.part.yaml
+# - <import saveTo="./test.job.md">: test.job.yaml
+# - Get dantri.com:
+#     GET: http://kenh14.vn/
+#     var: cnt
+# - <regex title="Restrict data" match1 test1 exec var="reg" data="${cnt}">: /<li class="knswlidnc swiper-slide">.*?<a href="[^"]+" title="[^"]+">(.*?)<\/a>.*?<\/li>/gms
+# - <output title="Saving to file" pretty="true" file1="./test.txt">: (${reg}.map(e => e[1].trim()))
+
+# - <save file="./test.txt">: ${cnt}
+
+# - <regex match1 test1 exec var="reg" content="${cnt}">: /<li class="knswlidnc swiper-slide">.*?<a href="[^"]+" title="[^"]+">(.*?)<\/a>.*?<\/li>/gms
+
+# - <output pretty="true" file="./test.txt">: (${reg}.map(e => e[1].trim()))
+
+# - <job title="Test 123" if="${isOk}">:
+#   - "module 1"
+# - <job>:
+#   - <output title="">: Menu
+#   - <output title="">:  1> Function A
+#   - <output title="">:  2> Function B
+#   - <output title="">:  3> Function C
+#   - <output title="">:  4> Enter your name
+#   - <input var="func">: "Choose function:"
+
+#   - <job if="([4].includes(+${func}))" title="function 4">:
+#     - <input var="name">: Your name is
+#     - <output file="./test.txt">: Hello ${name}
+
+#   # - <import>: test.part.yaml
+
+#   - <import if="([1].includes(+${func}))" title="function 1">: test.yaml
+
+#   - <import if="([2].includes(+${func}))" title="function 2">: test.part.yaml
+
+#   - <import if="([3].includes(+${func}))" title="function 3">: test.job.yaml
+
+# - "<job async>":
+#   - "<sleep>": 1000
+#   - "<note>": "module 2"
+#   - "<note>": "module 2.1"
+#   - "<note>": "module 2.1"
+
+# - "<note>": "abcccc"  
+
+# - <job async>:
+#   - Note here ok men ???
+#   - Get list users logs | ADMIN:
+#       GET: ${url}?fields={"*":1}&sort={"updated_at":-1}&recordsPerPage=1
+#       headers: ${adminToken}
+#       validate:
+#       - Check status:
+#         - match(status): 200
+#       - Check length data:
+#         - length(data): 1
+#       - Recheck new data value:
+#         - some(data): {
+#           title: "Test new log",
+#           event_name: "test",
+#           event_code: "EVENT_CODE_HERE"
+#         }
+#   - <extends>: Get list users logs | ADMIN
+#     <no-doc>:
+#     Test something:
+#       validate:
+#       - Check status:
+#         - match(status): 200
+#       - Check length data:
+#         - length(data): 1
+#       - Recheck new data value:
+#         - some(data): {
+#           title: "Test new log",
+#           event_name: "test",
+#           event_code: "EVENT_CODE_HERE"
+#         }
+  # - <import>: test.part.yaml

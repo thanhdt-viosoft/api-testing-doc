@@ -1,0 +1,68 @@
+---
+title: File APIs
+# Document
+# docs:
+# Variables
+# vars:
+
+steps:
+
+- '// Get a project detail of current admin | ADMIN': 
+    GET: ${oauthUrl}/Project?fields={"_id":1}
+    headers: { token: "${token}" }
+    var: project
+
+- 'Upload file by everyone | GUEST':
+    POST: ${url}/Upload/:pj|${project._id}/:fileConfigId|${fileConfig._id}?name=thanh.jpg&store=false
+    headers:
+      content-type: multipart/form-data
+    body: 
+      files: !file './assets/w3logo.jpg'
+    var: myfile
+    validate:
+      - Check response status:
+        - match(status): 200
+      - Check response data:
+        - exists(data): true
+    note: |
+      Upload file (Only user who signed in)
+    
+      You can add some params on querystring
+      store=true: Server auto save into disk. If you not set, server just save it in cached folder and auto remove after period time
+      name=filename.txt: Rename file
+      
+      ================================== RESPONSE BODY <==================================
+      
+      <<string | string[]>> Link file(s) after upload. It data type base on file configuration
+      
+      ===================================================================================
+  
+- 'Upload file by member | USER':
+    POST: ${url}/Upload/:fileConfigId|${fileConfigMember._id}?name=thanh.jpg&store=false
+    headers:
+      content-type: multipart/form-data
+      token: ${token}
+    body: 
+      files: !file './assets/w3logo.jpg'
+      replace_to: ${myfile}
+    validate:
+      - Check response status:
+        - match(status): 200
+      - Check response data:
+        - exists(data): true
+    note: |
+      Upload file (Only user who signed in)
+    
+      You can add some params on querystring
+      store=true: Server auto save into disk. If you not set, server just save it in cached folder and auto remove after period time
+      name=filename.txt: Rename file
+
+      "replace_to" in body data is used in case want to replace the old file to new file. It's old file path
+      
+      ================================== RESPONSE BODY <==================================
+      
+      <<string | string[]>> Link file(s) after upload. It data type base on file configuration
+      
+      ===================================================================================
+    
+    

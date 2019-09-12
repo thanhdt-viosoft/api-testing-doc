@@ -1,0 +1,99 @@
+---
+title: Project APIs
+vars:
+  suid: "4d961e97e19867c5fea673a0e8c02471"
+steps:
+
+- <job title="Manage project by root role" forces>:
+
+  - 'Create a new project | ROOT':
+      POST: ${url}/Project?fields={"*":1}
+      headers: { token: "${suid}" }
+      body: {
+        "name": "UTest1",
+        "des": "Unit test project",
+        "status": 0
+      }
+      var: project
+      # Validate response data
+      validate:
+      - Check response status:
+        - match(status): 200
+      - Check data after creating:
+        - match(data): {
+            "name": "UTest1",
+            "des": "Unit test project",
+            "status": 0
+          }
+
+  - 'Update project | ROOT':
+      PUT: ${url}/Project/:project_id|${project._id}
+      headers: { token: "${suid}" }
+      body: {
+        "des": "Unit test project 1",
+        "status": 1,
+        "config": "${project.config}"
+      }
+      # Validate response data
+      validate:
+      - Check response status:
+        - match(status): 204
+
+  - 'Get project detail | ROOT':
+      GET: ${url}/Project/:project_id|${project._id}?fields={"*":1}
+      headers: { token: "${suid}" }
+      validate:
+      - Check response status:
+        - match(status): 200
+      - Check data after updating:
+        - match(data): {
+          "des": "Unit test project 1",
+          "status": 1,
+          "config": "${project.config}"
+        }
+      var: project
+
+  - 'Get list project | ROOT':
+      GET: ${url}/Projects?fields={"*":1}&sort={"updated_at":-1}&recordsPerPage=2
+      headers: { token: "${suid}" }
+      # Validate response data
+      validate:
+      - Check response status:
+        - match(status): 200
+      - Check records per page:
+        - length(data): [1, , 2]
+      - Check exists the project which just created in the list projects:
+        - some(data): {
+          "name": "UTest1",
+          "des": "Unit test project 1",
+          "status": 1,
+          "config": "${project.config}"
+        }
+
+  - '// Get admin token':
+      POST: ${url}/Login
+      headers: {
+        "pj": "${project._id}"
+      }
+      body: {
+        "username": "${project.owner.split('/')[0]}",
+        "password": "${project.owner.split('/')[1].toMD5()}"
+      }
+      vars:
+        adminToken: "headers.token"
+      # Validate response data
+      validate:
+      - Check response status:
+        - match(status): 204
+      - Check token in response headers:
+        - exists(headers.token): true
+
+  - <import>: admin.yaml
+
+  - 'Delete a project | ROOT':
+      DELETE: ${url}/Project/:project_id|${project._id}
+      headers: { token: "${suid}" }
+      # Validate response data
+      validate:
+      - Check response status:
+        - match(status): 204

@@ -1,0 +1,105 @@
+
+---
+title: Ticket APIs
+# Document
+docs:
+# Variables
+vars:
+  token: 0648f9dfaffba19cc89c9a812f9eac0a
+  senderToken: 8f1665570618d4258c633e078cbb60a3
+  receiverToken: 536a16ccc19a02e027606dd03162a9dc
+  product_id: 5ca306d1d1efbd00294d93f8
+  activityStatus: {
+    Sender: {
+      PENDING_SEND: 1,
+      CANCEL_SEND: -1,
+      DECLINE_ACCEPT: -2,
+      PENDING_ACCEPT: 2,
+      ACCEPTED: 3,
+
+      PENDING_OFFER: 4,
+      CANCEL_OFFER: -4,
+      PENDING_PURCHASE: 5,
+      DECLINE_PURCHASE: -5,
+      PURCHASED: 6
+    },
+    Receiver: {
+      PENDING_SEND: 51,
+      CANCEL_SEND: 49,
+      DECLINE_ACCEPT: 48,
+      PENDING_ACCEPT: 52,
+      ACCEPTED: 53,
+
+      PENDING_OFFER: 54,
+      CANCEL_OFFER: 46,
+      PENDING_PURCHASE: 55,
+      DECLINE_PURCHASE: 45,
+      PURCHASED: 56
+    }
+  }
+# Templates to quick replace
+template:
+  adminToken: &adminToken
+    token: ${token}
+  senderToken: &senderToken
+    token: ${senderToken}
+  receiverToken: &receiverToken
+    token: ${receiverToken}
+
+steps:
+
+###################### Test case offer ticket and cancel offer ######################
+
+- Test offer ticket API | SENDER:
+    POST: ${url}/tk/OfferTicket/:productId|${product_id}?fields={"*":1}
+    headers: *senderToken
+    body: {
+      "phone_email": "dunv@viosoft.com",
+      "notify_via": {
+        "email": "dunv@viosoft.com"
+      },
+      "content": "test"
+    }
+
+- "<<no-doc>>":
+  Check activity status after send | SENDER:
+    GET: ${url}/tk/Activity?fields={"_id":1, "status":1}&sort={"updated_at":-1}&page=1&recordsPerPage=1
+    headers: *senderToken
+    var: senderActivities
+    validate:
+      data:
+      - some: {
+        status: "${activityStatus.Sender.PENDING_OFFER}"
+      }
+
+- Cancel offer sending from an activity | SENDER:
+    PUT: ${url}/tk/CancelOffer/:act_id|${senderActivities[0]._id}
+    headers: *senderToken
+
+###################### Test case offer ticket and decline purchase ######################
+
+- Test offer ticket API | SENDER:
+    POST: ${url}/tk/OfferTicket/:productId|${product_id}?fields={"*":1}
+    headers: *senderToken
+    body: {
+      "phone_email": "dunv@viosoft.com",
+      "notify_via": {
+        "email": "dunv@viosoft.com"
+      },
+      "content": "test"
+    }
+
+- "<<no-doc>>":
+  Check activity status after send | RECEIVER:
+    GET: ${url}/tk/Activity?fields={"_id":1, "status":1}&sort={"updated_at":-1}&page=1&recordsPerPage=1
+    headers: *receiverToken
+    var: receiverActivities
+    validate:
+      data:
+      - some: {
+        status: "${activityStatus.Receiver.PENDING_OFFER}"
+      }
+
+- Decline purchase from an activity | RECEIVER:
+    PUT: ${url}/tk/DeclinePurchase/:act_id|${receiverActivities[0]._id}
+    headers: *receiverToken

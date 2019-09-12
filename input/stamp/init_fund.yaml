@@ -1,0 +1,7 @@
+
+- Init reward:
+    POST: ${url}/Fund/Init/5ca307f16cd7bf001a846032?fields={"_id":1}
+    headers: { token: "${token}" }
+    body: {
+        categoryId: '5cef46483635fa2d24d5f341'
+    }

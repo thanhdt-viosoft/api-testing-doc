@@ -1,0 +1,43 @@
+---
+title: Fund service
+# Variables
+vars:
+# Templates to quick replace
+template:
+  adminToken: &adminToken
+    token: ${token}
+  senderToken: &senderToken
+    token: ${senderToken}
+  receiverToken: &receiverToken
+    token: ${receiverToken}
+steps:
+
+###################### Test case send fund and decline ######################
+- <<note>>: Test case send fund and decline
+
+- "<<extends>>": "Send fund to another | SENDER"
+  "<<no-doc>>":
+
+- "<<extends>>": "Check activity status after send | RECEIVER"
+
+- "<<extends>>": "Check activity status after send | SENDER"
+
+- Receiver decline fund sending | RECEIVER:
+    PUT: ${url}/Fund/Decline/:act_id|${receiverActivities[0]._id}
+    headers: *receiverToken
+
+- "<<extends>>": "Check activity status after accept | RECEIVER"
+  Check activity status after decline | RECEIVER:
+    validate:
+      data: 
+      - match: {
+        status: "${activityStatus.Receiver.DECLINE_ACCEPT}"
+      }
+
+- "<<extends>>": "Check activity status after accept | SENDER"
+  Check activity status after decline | SENDER:
+    validate:
+      data: 
+      - match: {
+        status: "${activityStatus.Sender.DECLINE_ACCEPT}"
+      }

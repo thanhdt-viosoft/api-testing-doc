@@ -1,0 +1,60 @@
+---
+title: Fund service
+des: Manage send, accept, decline, cancel fund
+# debug: true
+# ignoreError: true
+# Variables
+vars:
+  # url: https://gigadomo.org/tk
+  # oauthUrl: https://gigadomo.org/oauth
+  # balanceUrl: https://gigadomo.org/api
+  url: http://localhost:6118/tk
+  oauthUrl: https://gigadomo.org/oauth
+  balanceUrl: http://10.80.3.65:18000/api
+  token: 0648f9dfaffba19cc89c9a812f9eac0a
+  senderToken: f555210590242b6bab0502e926063066 # Vietta
+  receiverToken: 7f62fd02dc90d4ad7fadf13d9fe04db4 # vinhpq
+  initFundValue: 1000
+  initRewardValue: 2000
+  activityStatus: {
+    Sender: {
+      PENDING_SEND: 1,
+      CANCEL_SEND: -1,
+      DECLINE_ACCEPT: -2,
+      PENDING_ACCEPT: 2,
+      ACCEPTED: 3
+    },
+    Receiver: {
+      PENDING_SEND: 51,
+      CANCEL_SEND: 49,
+      DECLINE_ACCEPT: 48,
+      PENDING_ACCEPT: 52,
+      ACCEPTED: 53
+    }
+  }
+# Templates to quick replace
+template:
+  adminToken: &adminToken
+    token: ${token}
+  senderToken: &senderToken
+    token: ${senderToken}
+  receiverToken: &receiverToken
+    token: ${receiverToken}
+steps:
+
+###################### Test case for Fund APIs ######################
+- <<note>>: Init data before test
+
+- "<<no-doc>>":
+  Get receiver phone number:
+    GET: ${oauthUrl}/Me?fields={"phone":1,"_id":1}
+    headers: *receiverToken
+    var: receiver
+    throwOnError: true
+
+- "<<include>>": fund/send_accept.yaml
+- "<<include>>": fund/send_decline.yaml
+- "<<include>>": fund/send_cancel.yaml
+
+- "<<include>>": fund/init_fund.yaml
+- "<<include>>": fund/init_reward.yaml

@@ -1,0 +1,268 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "name": "Test case/job schema",
+    "oneOf": [
+        {
+            "$ref": "#/definitions/testcase",
+            "description": "Test case schema"
+        },
+        {
+            "$ref": "#/definitions/job",
+            "description": "Test job schema"
+        }
+    ],
+    "definitions": {
+        "testcase": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "title": {
+                    "type": "string",
+                    "description": "Test case title"
+                },
+                "slient": {
+                    "type": "boolean",
+                    "description": "Disable log"
+                },
+                "des": {
+                    "type": "string",
+                    "description": "Test case description which show in document"
+                },
+                "saveTo": {
+                    "type": "string",
+                    "description": "Absolute/Relative path which the DOC will export to"
+                },
+                "debug": {
+                    "type": "boolean",
+                    "description": "Show link below each api calling in the console"
+                },
+                "stepByStep": {
+                    "type": "boolean",
+                    "description": "This will make the testing process to be paused after each step. You need to enter to continue"
+                },
+                "vars": {
+                    "type": "object",
+                    "description": "Global variable which reused in all of testcases"
+                },
+                "doc": {
+                    "type": "boolean",
+                    "description": "Allow to export to document or not"
+                },
+                "docs": {
+                    "type": "object",
+                    "description": "Add document description for each field in api"
+                },
+                "steps": {
+                    "$ref": "#/definitions/job"
+                }
+            },
+            "required": [
+                "title",
+                "steps"
+            ]
+        },
+        "ws": {
+            "type": "array",
+            "items": {
+                "description": "Steps",
+                "oneOf": [
+                    {
+                        "type": "object",
+                        "patternProperties": {
+                            "^<ws-channel.*>$": {
+                                "description": "Websocket channels",
+                                "$ref": "#/definitions/job",
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                ]
+            },
+            "additionalProperties": false
+        },
+        "api": {
+            "type": "object",
+            "properties": {
+                "doc": {
+                    "type": [
+                        "null",
+                        "boolean"
+                    ],
+                    "description": "Export to document or not"
+                },
+                "retry/delay": {
+                    "type": "string",
+                    "description": "Try to completed the calling. \"retry\" is the time recall if failed. \"delay\" is delay time in each re-calling"
+                },
+                "extends": {
+                    "type": "string",
+                    "description": "Extends another via a api calling name"
+                },
+                "GET": {
+                    "type": "string",
+                    "description": "Request method"
+                },
+                "POST": {
+                    "type": "string",
+                    "description": "Request method"
+                },
+                "PUT": {
+                    "type": "string",
+                    "description": "Request method"
+                },
+                "DELETE": {
+                    "type": "string",
+                    "description": "Request method"
+                },
+                "PATCH": {
+                    "type": "string",
+                    "description": "Request method"
+                },
+                "OPTIONS": {
+                    "type": "string",
+                    "description": "Request method"
+                },
+                "HEAD": {
+                    "type": "string",
+                    "description": "Request method"
+                },
+                "headers": {
+                    "type": [
+                        "object",
+                        "string"
+                    ],
+                    "description": "Request header"
+                },
+                "body": {
+                    "type": [
+                        "object",
+                        "string",
+                        "array"
+                    ],
+                    "description": "Request body"
+                },
+                "vars": {
+                    "type": "object",
+                    "description": "{key: value} is global variables which reused in all of testcases"
+                },
+                "var": {
+                    "type": "string",
+                    "description": "Var name is global variable which reused in all of testcases"
+                },
+                "note": {
+                    "type": "string",
+                    "description": "Add note below a api detail which is exported to document"
+                }
+            },
+            "anyOf": [
+                {
+                    "required": [
+                        "GET"
+                    ]
+                },
+                {
+                    "required": [
+                        "POST"
+                    ]
+                },
+                {
+                    "required": [
+                        "PUT"
+                    ]
+                },
+                {
+                    "required": [
+                        "DELETE"
+                    ]
+                },
+                {
+                    "required": [
+                        "PATCH"
+                    ]
+                },
+                {
+                    "required": [
+                        "OPTIONS"
+                    ]
+                },
+                {
+                    "required": [
+                        "HEAD"
+                    ]
+                },
+                {
+                    "required": [
+                        "extends"
+                    ]
+                }
+            ]
+        },
+        "job": {
+            "type": "array",
+            "items": {
+                "description": "Steps",
+                "oneOf": [
+                    {
+                        "type": "string",
+                        "description": "Add note message in the console"
+                    },
+                    {
+                        "type": "object",
+                        "description": "A test step",
+                        "patternProperties": {
+                            "^<ws-emit.*>$": {
+                                "type": "string",
+                                "description": "Emit in websocket which used inner wrapper <ws>"
+                            },
+                            "^<import.*>$": {
+                                "type": "string",
+                                "examples": [
+                                    "thanh"
+                                ],
+                                "description": "Import test case, job or json test data from external resource"
+                            },
+                            "^<exec.*>$": {
+                                "$ref": "#/definitions/job",
+                                "description": "Run executor file (.bat .sh ...)"
+                            },
+                            "^<output.*>$": {
+                                "type": "string",
+                                "description": "Print content (text/var) to console or save to file"
+                            },
+                            "^<pause.*>$": {
+                                "type": "string",
+                                "description": "Pause the execution base on its value. [empty(infinite), 1s(1 second), 1500(1,5 seconds)]"
+                            },
+                            "^<ws.*>$": {
+                                "$ref": "#/definitions/ws",
+                                "description": "Listen/Call websocket via socket.io"
+                            },
+                            "^<input.*>$": {
+                                "type": "string",
+                                "description": "Get user input data and store into a var"
+                            },
+                            "^<regex.*>$": {
+                                "type": "string",
+                                "description": "Use regex to handle content data (text/var) and store it into a var"
+                            },
+                            "^<job.*>$": {
+                                "$ref": "#/definitions/job",
+                                "description": "Add a new job which contains many test steps"
+                            },
+                            "^//[^<].+": {
+                                "$ref": "#/definitions/api",
+                                "description": "Api calling detail (NOT export to DOC)"
+                            },
+                            "^[^<].+": {
+                                "$ref": "#/definitions/api",
+                                "description": "Api calling detail (Export to DOC)"
+                            }
+                        },
+                        "additionalProperties": false
+                    }
+                ]
+            },
+            "additionalProperties": false
+        }
+    }
+}

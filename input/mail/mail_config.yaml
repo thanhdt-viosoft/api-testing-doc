@@ -1,0 +1,54 @@
+---
+title: Mail Config APIs
+# Document
+docs:
+# Variables
+vars:
+# Templates to quick replace
+template:
+  adminToken: &adminToken
+    token: ${token}
+
+steps:
+  Add a new mail config | ADMIN:
+    POST: ${url}/Config?fields={"*":1}
+    headers: *adminToken
+    body: {
+      name: 'clipvnet',
+      config: {
+        auth: {
+          user: 'clipvnet@gmail.com',
+          pass: 'thanh@#$1234'
+        },
+        tls: {},
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true
+      }
+    }
+    var: mailConfig
+    note: |
+      Add SMTP server configuration for sending
+  
+  Get list mail config | ADMIN:
+    GET: ${url}/Config?fields={"*":1}
+    headers: *adminToken
+
+  Update the mail config | ADMIN:
+    PUT: ${url}/Config/:mailConfigId|${mailConfig._id}
+    headers: *adminToken
+    body: {
+      name: 'clipvnet updated',
+      group: 'Group01'
+    }
+
+  <import>: mail_template.yaml
+
+  Get a mail config detail | ADMIN:
+    GET: ${url}/Config/:mailConfigId|${mailConfig._id}?fields={"*":1}
+    headers: *adminToken
+
+  Remove a mail config | ADMIN:
+    DELETE: ${url}/Config/:mailConfigId|${mailConfig._id}
+    headers: *adminToken
+  

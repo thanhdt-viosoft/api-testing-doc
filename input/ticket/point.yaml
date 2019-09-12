@@ -1,0 +1,150 @@
+---
+title: Point service
+des: Manage send, accept, decline, cancel point
+saveto: ./../../output/point.md
+# Variables
+vars:
+  url: http://localhost:6118/tk
+  token: 0648f9dfaffba19cc89c9a812f9eac0a
+  #senderToken: 7aba72232b33cd8c88de482b894dbdc5 # Vietta
+  #senderToken: 7aba72232b33cd8c88de482b894dbdc5?604800000 # congnt
+  senderToken: 021614118a742a9645f31dd018203e40?604800000 # congnt
+  #receiverToken: cfc576305024215c3ce9abfb2e2650d3 # vinhpq
+  receiverToken: 7aba72232b33cd8c88de482b894dbdc5?604800000 # congnt
+  receiverPhone: "84392749353"
+  activityStatus: {
+    Sender: {
+      PENDING_SEND: 1,
+      CANCEL_SEND: -1,
+      DECLINE_ACCEPT: -2,
+      PENDING_ACCEPT: 2,
+      ACCEPTED: 3
+    },
+    Receiver: {
+      PENDING_SEND: 51,
+      CANCEL_SEND: 49,
+      DECLINE_ACCEPT: 48,
+      PENDING_ACCEPT: 52,
+      ACCEPTED: 53
+    }
+  }
+# Templates to quick replace
+template:
+  adminToken: &adminToken
+    token: ${token}
+  senderToken: &senderToken
+    token: ${senderToken}
+  receiverToken: &receiverToken
+    token: ${receiverToken}
+
+steps:
+
+###################### Test case send point and accept ######################
+- <<note>>: Test case send point and accept
+
+- Send point to another | SENDER:
+    POST: ${url}/Point/Send
+    headers: *senderToken
+    body: {
+      point_id: "5caf0be0eb986a50e8a78fee",
+      point_value: 1,
+      phone_email: "84372518010",
+      notify_via: {
+        email: congnt@viosoft.com
+      },
+      content: 'hey bro 1'
+    }
+
+- "<<no-doc>>":
+  Check activity status after send | RECEIVER:
+    GET: ${url}/Activity?fields={"_id":1, "status":1}&sort={"updated_at":-1}&page=1&recordsPerPage=5
+    headers: *receiverToken
+    var: receiverActivities
+    validate:
+      data:
+      - some: {
+        status: "${activityStatus.Receiver.PENDING_SEND}"
+      }
+
+- "<<no-doc>>":
+  Check activity status after send | SENDER:
+    GET: ${url}/Activity?fields={"_id":1, "status":1}&sort={"updated_at":-1}&page=1&recordsPerPage=5
+    headers: *senderToken
+    var: senderActivities
+    validate:
+      data:
+      - some: {
+        status: "${activityStatus.Sender.PENDING_SEND}"
+      }
+- Accept points from an activity | RECEIVER:
+    PUT: ${url}/Point/Accept/:act_id|${receiverActivities[0]._id}
+    headers: *receiverToken
+- "<<no-doc>>":
+  Check activity status after accept | RECEIVER:
+    GET: ${url}/Activity/:act_id|${receiverActivities[0]._id}?fields={"status":1}
+    headers: *receiverToken
+    validate:
+      data:
+      - match: {
+        status: "${activityStatus.Receiver.PENDING_ACCEPT}"
+      }
+- "<<no-doc>>":
+  Check activity status after accept | SENDER:
+    GET: ${url}/Activity/:act_id|${senderActivities[0]._id}?fields={"status":1}
+    headers: *senderToken
+    validate:
+      data: 
+      - match: {
+        status: "${activityStatus.Sender.PENDING_ACCEPT}"
+      }
+- "<<extends>>": "Check activity status after accept | SENDER"
+  "<<try-to-pass>>": 12/5000
+  Verify transaction in block chain | SENDER:
+    validate:
+      data: 
+      - match: {
+        status: "${activityStatus.Sender.ACCEPTED}"
+      }
+
+###################### Test case send fund and decline ######################
+- <<note>>: Test case send fund and decline
+
+- Receiver decline fund sending | RECEIVER:
+    PUT: ${url}/Point/Decline/:act_id|${receiverActivities[0]._id}
+    headers: *receiverToken
+
+- "<<extends>>": "Check activity status after send | RECEIVER"
+  Check activity status after decline | RECEIVER:
+    validate:
+      data: 
+      - some: {
+        status: "${activityStatus.Receiver.DECLINE_ACCEPT}"
+      }
+
+- "<<extends>>": "Check activity status after send | SENDER"
+  Check activity status after decline | SENDER:
+    validate:
+      data: 
+      - some: {
+        status: "${activityStatus.Sender.DECLINE_ACCEPT}"
+      }
+
+###################### Test case send fund and cancel ######################
+- <<note>>: Test case send Point and cancel
+
+- Cancel Point sending from an activity | SENDER:
+    PUT: ${url}/Point/Cancel/:act_id|${receiverActivities[0]._id}
+    headers: *senderToken
+
+- "<<extends>>": "Check activity status after send | RECEIVER"
+  Check activity must be removed after cancel | RECEIVER:
+    validate:
+      data: null
+
+- "<<extends>>": "Check activity status after send | SENDER"
+  Check activity status after cancel | SENDER:
+    validate:
+      data: 
+      - some: {
+        status: "${activityStatus.Sender.CANCEL_SEND}"
+      }

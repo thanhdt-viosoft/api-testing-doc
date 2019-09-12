@@ -1,0 +1,44 @@
+{
+  "name": "api-testing-doc",
+  "version": "2.0.38",
+  "description": "project which test and auto export document.md",
+  "main": "dist/index.js",
+  "bin": {
+    "testapi": "./bin/api-testing-doc.js",
+    "testapi-new": "./bin/api-create-doc.js"
+  },
+  "scripts": {
+    "once": "npm install -g typescript && npm install -g cross-var && npm install -g tslint-config-standard",
+    "test": "node .",
+    "new": "node dist/new.js",
+    "watch": "rimraf .build && tsc --watch --pretty --sourceMap",
+    "build": "npm run clean && tsc",
+    "build1": "npm install && npm run clean && tsc && npm run copyfiles && cd dist && npm install --only=production",
+    "clean": "rimraf dist",
+    "copyfiles": "cpx ./package.json dist"
+  },
+  "dependencies": {
+    "ansi-to-html": "^0.6.11",
+    "axios": "^0.16.2",
+    "chalk": "^2.4.2",
+    "form-data": "^2.3.3",
+    "js-yaml": "^3.12.2",
+    "lodash": "^4.17.11",
+    "shelljs": "^0.8.3",
+    "socketio": "^1.0.0",
+    "unzip": "^0.1.11"
+  },
+  "author": "onapis.com@gmail.com",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/axios": "^0.14.0",
+    "@types/chalk": "^2.2.0",
+    "@types/js-yaml": "^3.12.1",
+    "@types/lodash": "^4.14.122",
+    "@types/node": "^7.10.5",
+    "@types/shelljs": "^0.8.5",
+    "cpx": "^1.5.0",
+    "rimraf": "^2.6.3",
+    "typescript": "^3.4.4"
+  }
+}

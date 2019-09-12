@@ -1,0 +1,27 @@
+{
+  "url": "http://devops.abc.org:50020",
+  "host": "abc.ORG",
+  "serviceIndex": -1,
+  "services": [
+    {
+      "name": "eu4-server-ticket",
+      "branch": "Beta3_dev_feature_ticket",
+      "commit": "latest"
+    },
+    {
+      "name": "eu4-server-productmanager",
+      "branch": "Beta2_dev_feature_ticket",
+      "commit": "latest"
+    },
+    {
+      "name": "eu4-server-campaign",
+      "branch": "Beta2_dev_feature_ticket",
+      "commit": "latest"
+    },
+    {
+      "name": "eu4-client",
+      "branch": "Beta2_RL3",
+      "commit": "latest"
+    }
+  ]
+}

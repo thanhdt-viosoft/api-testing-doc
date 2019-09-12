@@ -1,0 +1,16 @@
+---
+title: Oauth service
+des: Manage authentication, authorization, role, project
+saveTo: ./../OAuth.md
+# debug: true
+# Document
+docs:
+  token: user or admin token
+  pj: project id
+  role: role id
+# Variables
+vars:
+  url: http://localhost:6111
+
+steps:
+- <import>: project/super_admin.yaml

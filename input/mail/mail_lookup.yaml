@@ -1,0 +1,34 @@
+---
+title: Mail Lookup APIs
+# Document
+docs:
+# Variables
+vars:
+  provider: google
+  domain: gmail.com
+# Templates to quick replace
+template:
+  adminToken: &adminToken
+    token: ${token}
+
+steps:
+
+  Search list mx by provider | ADMIN: 
+    GET: ${url}/MXLookup?where={"provider":{"$regex":":provider|${provider}"}}&fields={"*":1}
+    headers: *adminToken
+
+  Lookup an auto update domain | GUEST:
+    GET: ${url}/MXLookup/Lookup?email=:domain|${domain}
+    note: |
+      email: can be email or domain (onapiscom@gmail.com, gmail.com or @gmail.com)
+      Note: It'll check domain in db. If not existed, it'll call to a service to get domain information and update to db to reuse the next time
+
+  Check domain is instead of gmail, or yahoo... | GUEST:
+    HEAD: ${url}/MXLookup/Check?email=:email|${domain}&provider=:provider|${provider}
+    note: |
+      - email: can be email or domain (onapiscom@gmail.com, gmail.com or @gmail.com)
+      - provider: it's regex. Ex: google|yahoo
+      Response:
+       - <code>204</code>: It's correct
+       - <code>404</code>: It's NOT correct
+      Note: Check email which is gmail, google or facebook ?

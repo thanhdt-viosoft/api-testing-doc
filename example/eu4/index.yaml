@@ -1,0 +1,66 @@
+---
+title: Deploy to ORG
+des: Fast deploy to server
+# saveTo: ./../../output/log.md
+# debug: true
+# stepByStep: true
+# force: true
+doc: false
+# docs:
+# vars:
+steps:
+  
+# - <import data>: ./service.json
+
+- <job title="Run async ws listener" async>:
+  - <ws title="Test WS" debug="false" url="ws://onapis.com/ws/5c95cdaa7fcc5e0010511a8d?id=$5c95cdaa7fcc5e0010511a8d:5c95cdaa7fcc5e0010511a8d:a5a0c6f5d789bbd4dff657544c6f0a3a&group=Test">:
+      closeWhen: "(${cmd} === 'exit')"
+      channels:
+      - 5c95dc395ce9830010e8cbaf:
+          vars: 
+            cmd: name
+            branch: branch
+            commit: commit
+            url: url
+            host: host
+
+- <job title1="Handle listener to deploy" while="(${cmd} !== 'exit')" whileDelay="1000" async>:
+  - <job if="${cmd}">:
+    - <output>: |
+        URL      > ${url}
+        Host     > ${host}
+        Service  > ${cmd}
+        Branch   > ${branch}
+        CommitID > ${commit}
+    
+    - Deploy service "${cmd}":
+        POST: ${url}/scripts/execution
+        headers:   
+          content-type: multipart/form-data
+        body: {
+          __script_name: '${host}',
+          CommitId: '${commit}',
+          Branch: '${branch}',
+          Microservice: '${cmd}'
+        }
+
+    - <output var="cmd">: ""
+    
+# - <job title="Pick service to deploy to ${url}">:
+#   - <output loop="services" color="yellow">: ${services_key}. ${services_value.name} \t [${services_value.branch}]
+#   - <input var="serviceIndex" error="((+${menu} >= ${services.length}) && 'Pick again:' || '')" if="(+${serviceIndex} < 0)">: "Choose service:"
+
+#   - <job title="Deploying ${services[vars.serviceIndex].name} [${services[vars.serviceIndex].branch}]">:
+#     - Deployed successfully:
+#         POST: ${url}/scripts/execution
+#         headers:   
+#           content-type: multipart/form-data
+#         body: {
+#           __script_name: '${host}',
+#           CommitId: '${services[vars.serviceIndex].commit}',
+#           Branch: '${services[vars.serviceIndex].branch}',
+#           Microservice: '${services[vars.serviceIndex].name}'
+#         }
+#         var: jobId
+
+#     - <output>: JobID is ${jobId}

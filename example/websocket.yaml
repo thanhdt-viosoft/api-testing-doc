@@ -1,0 +1,16 @@
+- <job title="Run async ws listener" async>:
+  - <ws title="Test WS" debug url="ws://onapis.com/ws/5c95cdaa7fcc5e0010511a8d?id=$5c95cdaa7fcc5e0010511a8d:5c95cdaa7fcc5e0010511a8d:a5a0c6f5d789bbd4dff657544c6f0a3a&group=Test">:
+    - <ws-channel var="cmd" name="5c95dc395ce9830010e8cbaf">:
+      - <job if="(!${log} && ${cmd})">:
+        - Running command ${cmd}
+        # - <ws-emit to="5c95dc395ce9830010e8cbaf">: NOOOO ${cmd}
+        - <exec var="log" ansi2html stopWhen="(${cmd} === 'stop')" cmd="!file test.bat "${cmd || ''}"">:
+          # - <output>: ${log}
+          - Push log to server:
+              retry/delay: 5/2000
+              POST: http://onapis.com/ws/Channel/5c95dc395ce9830010e8cbaf?group=Test
+              headers: {
+                token: "${token}",
+                content-type: "text/plain"
+              }
+              body: ${log}

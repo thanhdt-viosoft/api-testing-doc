@@ -1,0 +1,6 @@
+- <output>: Menu
+- <output>:  1> Crawl Data
+- <output>:  2> Function B
+- <output>:  3> Function C
+- <output>:  4> Enter your name
+- <input var="menu">: "Choose function:"

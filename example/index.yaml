@@ -1,0 +1,17 @@
+---
+title: Example
+des: Make examples
+# saveTo: ./../../output/log.md
+# debug: true
+# stepByStep: true
+# force: true
+doc: false
+# docs:
+# vars:
+steps:
+- <import>: !file deploy.yaml
+# - <import>: menu.yaml
+# - <import if1="(${menu} === '1')" title="Crawl data">: ./crawl_data/nettruyen.com.yaml
+# - <output var="list">: ([1,2,3,4,5])
+# - <job loop="list" title="try to exec ${list_key}">:
+#   - <output>: ${list_value}

@@ -1,0 +1,20 @@
+---
+title: Activity service
+des: Manage send, accept, decline, cancel stamp
+saveTo: ./../Activity2.2.md
+debug: true
+# Document
+docs:
+  token: user or admin token
+# Variables
+vars:
+  url: http://localhost:6121/act
+  token: 0648f9dfaffba19cc89c9a812f9eac0a
+  senderToken: f2a5aae11dc93b42d69f85680fa362f0 # Vietta
+  receiverToken: b878a22de26d8faa5f0e0d09ca977fcd # Vinhpq
+# Templates to quick replace
+
+steps:
+- <import>: !file activity.yaml
+- <import>: !file send_stamp.yaml
+# - <import>: !file init_fund.yaml
